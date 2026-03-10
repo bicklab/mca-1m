@@ -1,0 +1,39 @@
+# METAL script for meta-analysis
+SCHEME STDERR
+FORCEUPPER ON
+STRICT ON
+# BIOVU
+MARKER ID
+ALLELE ALLELE0 ALLELE1
+EFFECT BETA
+STDERR SE
+PVALCOLUMN LOG10P
+USEPVALUES 10^(-LOG10P)
+PROCESS mca_cis_gwas_v2_12172024/biovu/formatted/chr9-cnloh-p.formatted.txt
+
+# AOU
+MARKER ID
+ALLELE ALLELE0 ALLELE1
+EFFECT BETA
+STDERR SE
+PVALCOLUMN LOG10P
+USEPVALUES 10^(-LOG10P)
+PROCESS mca_cis_gwas_v2_12172024/aou/formatted/chr9-cnloh-p.formatted.txt
+
+# UKB
+MARKER ID
+ALLELE ALLELE0 ALLELE1
+EFFECT beta
+STDERR se
+PROCESS mca_cis_gwas_v2_12172024/ukb/formatted/chr9-cnloh-p.formatted.txt
+
+# TOPMED
+MARKER ID
+ALLELE ALLELE0 ALLELE1
+EFFECT BETA
+STDERR SE
+PVALCOLUMN LOG10P
+PROCESS mca_cis_gwas_v2_12172024/topmed/formatted/chr9-cnloh-p.formatted.txt
+
+OUTFILE chr9-cnloh-p-meta_ .tbl
+ANALYZE HETEROGENEITY

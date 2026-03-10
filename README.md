@@ -1,1 +1,270 @@
-# mca-1m
+# Genetic drivers and clinical consequences of mosaic chromosomal alterations in 1 million individuals.
+
+This repository contains the code and analysis scripts for [Zhao & Pershad et al, medRxiv, 2025](https://doi.org/10.1101/2025.03.05.25323443).
+
+## Table of Contents
+1. [Autosomal mosaic chromosomal alteration (aut-mCA) detection with MoChA](#autosomal-mosaic-chromosomal-alteration-aut-mca-detection-with-mocha)
+2. [Identification of putative drivers of aut-mCAs](#identification-of-putative-drivers-of-aut-mcas)
+3. [Rare variant analysis supporting putative drivers](#rare-variant-analysis-supporting-putative-drivers)
+4. [CHIP and aut-mCA co-occurrence](#chip-and-aut-mca-co-occurrence)
+5. [Aut-mCA "cis" chromosome-wide association study](#aut-mca-cis-chromosome-wide-association-study)
+6. [Aut-mCA "trans" genome-wide association study](#aut-mca-trans-genome-wide-association-study)
+7. [Proteomic signatures of aut-mCAs](#proteomic-signatures-of-aut-mcas)
+8. [Aut-mCAs and polygenic risk score associations](#aut-mcas-and-polygenic-risk-score-associations)
+9. [Incident cytosis analysis](#incident-cytosis-analysis)
+10. [Phenome-wide association study of aut-mCAs](#phenome-wide-association-study-of-aut-mcas)
+11. [Mediation analysis](#mediation-analysis)
+12. [Mendelian randomization between aut-mCAs and CLL](#mendelian-randomization-between-aut-mcas-and-cll)
+
+
+## Autosomal mosaic chromosomal alteration (aut-mCA) detection with MoChA
+
+The code to call mosaic chromosomal alterations with [MoChA](https://software.broadinstitute.org/software/mocha/) is available [here](https://github.com/freeseek/mocha).
+
+mCA detection in the UK Biobank was previously described by [Loh et al, Nature, 2018](https://pubmed.ncbi.nlm.nih.gov/29995854/) and [Loh et al, Nature, 2020](https://pubmed.ncbi.nlm.nih.gov/32581363/). The mCA call set has also been returned to UK Biobank (as Return 2062) to enable individual-level linkage to approved UK Biobank applications.
+
+In TOPMed, MoChA version 1.11, a haplotype-phasing tool for mCA detection was used for detection as described by [Jakubek et al, Nature Genetics, 2023](https://www.nature.com/articles/s41588-023-01553-1). MoChA utilizes genotypes from four datasets to evaluate coverage and B allele frequency (BAF) at heterozygous loci, identifying mCAs based on deviations in allelic balance. Heterozygous markers were sourced from Taliun et al. and MoChA was run with the additional parameter ‘–LRR-weight 0.0 –bdev-LRR-BAF 6.0,’ deactivating the LRR + BAF model to improve detection sensitivity in TOPMed.  Code available [here](https://github.com/auerlab/TOPMed-mCA-and-LoY-calling/tree/xima/TopMed_WGS_mCA).
+
+For BioVU, detection of mCAs was performed starting from raw IDAT files from the Illumina MEGAEX, as previously described in [Kishtagari et al, Blood Cancer Journal, 2024](https://www.nature.com/articles/s41408-023-00974-9).
+
+In All of Us, for the version 7 of the genotyping data, detection of mCAs was performed starting from raw IDAT files from the Illumina MEGAEX with MoChA version 1.11 with the same methods as performed in BioVU. The MoChA WDL as described [here](https://github.com/freeseek/mochawdl) was ran on a Cromwell Server on the All of Us Research Workbench using IDAT files in version 7 of the genotyping data, with phasing from 1000 Genomes.
+
+In this analysis, we defined mCA events by focusing exclusively on autosomal mCA calls and excluding any loss of X and Y chromosome events. The mCA calls included copy-neutral loss of heterozygosity (CN-LOH), losses, gains of chromosomal regions, and mCAs with undetermined copy changes. 
+
+## Identification of putative drivers of aut-mCAs
+
+Using aut-mCA calls from both genotyping arrays (UKB, AoU, and BioVU) and whole-genome sequencing (TOPMed), we next identified the minimum shared altered region (MSAR) in 50%, 75%, 80%, and 90% of aut-mCAs of the same chromosomal arm and type across the 4 cohorts. We then used the [UCSC Genome Browser's hg38 gene positions](http://hgdownload.cse.ucsc.edu/goldenPath/hg38/database/refGene.txt.gz) to identify which genes are contained within the MSAR. After this, we subsetted the MSAR genes to those in which somatic mutations have been observed in targeted sequencing of 2,383 myeloid and lymphoid neoplasms and their matched normals via [MSK-IMPACT Heme panel on the cBioPortal for Cancer Genomics](https://www.cbioportal.org/study/summary?id=heme_msk_impact_2022). We chose the most stringent % threshold of shared aut-mCAs that contained at least 1 hematologic malignancy driver gene for each mCA chromosome and type; the thresholds are reported in Supplementary Table 3. We then annotated these hematologic malignancy driver genes as tumor suppressors, proto-oncogenes, both, or neither using the [OncoKB](https://www.oncokb.org/cancer-genes). Putative drivers were selected among hematologic malignancy genes for aut-mCAs by selecting proto-oncogenes in the MSAR for gains and tumor suppressors in the MSAR for losses. For copy-neutral loss of heterozygosity, we did not require a gene to be a proto-oncogene or tumor suppressor.
+
+Pseudo-code for putative driver identification is as follows:
+
+    Define thresholds for shared regions [50%, 75%, 80%, 90%]
+    Create empty dictionaries to store cancer genes and their thresholds
+    
+    For each mosaic chromosomal alteration (mCA) in highest threshold results:
+        Start with most stringent threshold (90%)
+        Get genes in the minimum shared altered region (MSAR)
+        Intersect these genes with known blood cancer genes
+        
+        While no cancer genes found AND thresholds remain:
+            Try next lower threshold
+            Get genes in the less stringent MSAR
+            Intersect with blood cancer genes
+        
+        If cancer genes found:
+            Store the cancer genes for this mCA
+            Record which threshold was used
+        
+Code available: [Putative driver notebook](https://github.com/bicklab/mca-1m/blob/main/YP-putative-drivers.ipynb).
+
+## Rare variant analysis supporting putative drivers
+To provide support that putative driver genes caused aut-mCAs, we conducted a rare variant collapsing analysis for rare germline missense, frameshift, deletion, and stop-gain variants within putative driver genes. We performed this analysis in 468,809 people using the UK Biobank's whole exome sequences. The omnibus test SKATO was selected for the rare variant analysis because it combines variance component tests and burden tests. Aut-mCAs in chromosome arms (p and q separately) with 25 cases per cohort were included and encoded binarily. To control for multiple comparisons, we defined a significance threshold of P < 0.05/(effective number of variants) for each aut-mCA type. We used a Regenie v3.3 pipeline, using a docker image provided by the software authors. We restricted step 1 to a random selection of 500,000 extremely common variants. We restricted step 2 to minor allele frequency < 0.01 in coding regions with missense, frameshift, deletion, or stop-gain mask annotations.
+
+Example provided for chr9-cnloh-p:
+
+Step 1 options for Regenie v.3.3:
+
+      --step 1 \
+      --bed ukb_imp_step1 \
+      --phenoFile chr9-cnloh-p.txt \
+      --bsize 1000 \
+      --use-relative-path \
+      --bt \
+      --extract PACER_UKB_GWAS_step1QC_plink_mac5000_thinned.snplist \
+      --covarFile chr9-cnloh-p.txt \
+      --phenoColList mca \
+      --covarColList age,age2,smoking,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10 \
+      --catCovarList sex \
+      --out chr9_cnloh_p
+
+Step 2 options for Regenie v.3.3:
+
+      --step 2 \
+      --bgen ukb23159_c9_b0_v1.bgen \
+      --phenoFile chr9-cnloh-p.txt \
+      --bsize 200 \
+      --pred chr9_cnloh_p_pred.list \
+      --sample ukb23159_c9_b0_v1.sample \
+      --covarFile chr9-cnloh-p.txt \
+      --anno-file ukb_rare_var_anno_snps_chr9.txt \
+      --set-list ukb_rare_vars_gene_list_chr9.txt \
+      --mask-def ubk_rare_var_mask.txt \
+      --phenoColList mca \
+      --covarColList age,age2,smoking,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10 \
+      --catCovarList sex \
+      --ref-first \
+      --vc-tests skato \
+      --bt \
+      --out chr9_cnloh_p_ukb23159_c9_b0_v1.bgen
+
+## CHIP and aut-mCA co-occurrence
+
+A total of 74 canonical CHIP genes were screened for potential CHIP mutations using the Mutect2 somatic variant caller (Vlasschaert et al. Blood. 2023 May 4;141(18):2214-2223). Variants included in the preliminary dataset met the following criteria: presence in a pre-established list of candidate CHIP variants, total sequencing depth ≥ 20, alternate allele read depth count ≥ 5, and representation in both sequencing directions (i.e., F1R2 ≥ 1 and F2R1 ≥ 1). CHIP mutations were defined as those with a variant allele fraction (VAF) ≥ 0.02. Fisher's exact test was used to calculate if CHIP and aut-mCAs occurred more frequently than by chance, after correction for multiple hypothesis testing.
+
+Code available in: [Co-occurrence Rcode](https://github.com/bicklab/mca-1m/blob/main/KZ_CHIP_mCA_cooccurrence.R)
+
+## Aut-mCA "cis" chromosome-wide association study
+
+To identify genomic regions associated with aut-mCAs, we conducted a cis-GWAS analysis (that is, variants within the same genomic locus as the mCA) by filtering genomic variants based on their position relative to each arm of chromosomal regions. Aut-mCAs in chromosome arms (p and q separately) with 25 cases per cohort were included and encoded binarily. The number of studies supporting the association was required to be in all cohorts including UKB, AoU and TOPMed. To control for multiple comparisons, we defined a significance threshold of P < 0.05/(effective number of variants) after meta-analysis. 
+
+Step 1 options for Regenie v.3.3 (example of chr9-gain-p):
+
+    --step 1 \
+    --bed ukb_imp_step1 \
+    --phenoFile chr9-gain-p.txt \
+    --bsize 1000 \
+    --use-relative-path \
+    --extract /home/dnanexus/PACER_UKB_GWAS_step1QC_plink_mac5000_thinned.snplist \
+    --covarFile chr9-gain-p.txt \
+    --bt \
+    --phenoColList mca \
+    --covarColList age,age2,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10 \
+    --catCovarList sex,smoking \
+    --out chr9-gain-p
+
+Step 2 options for Regenie v.3.3 (example of chr9-gain-p):
+
+    --step 2 \
+    --bgen ukb22828_c9_b0_v3.bgen \
+    --phenoFile chr9-gain-p.txt \
+    --bsize 200 \
+    --pThresh 0.05 \
+    --test additive \
+    --pred chr9-gain-p_pred.list \
+    --gz \
+    --sample ukb22828_c9_b0_v3.sample \
+    --extract /home/dnanexus/imputed_UKB_GWAS_step2QC_plink_maf0.001_geno0.1_chr9.snplist \
+    --covarFile chr9-gain-p.txt \
+    --bt \
+    --firth \
+    --approx \
+    --firth-se \
+    --phenoColList mca \
+    --covarColList age,age2,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10 \
+    --catCovarList sex,smoking \
+    --ref-first \
+    --htp ukb22828_c9_b0_v3 \
+    --out chr9-gain-p_ukb22828_c9_b0_v3
+
+Meta-analysis for each aut-mCA per chromosome arm was performed with the METAL version from 2011-03-25 using the standard-error analysis scheme. Example METAL script available [here](https://github.com/bicklab/mca-1m/blob/main/chr9-cnloh-p-meta.txt).
+
+## Aut-mCA "trans" genome-wide association study
+
+We also performed a genome-wide association study for aut-mCAs prevalence. Autosomal mCA prevalence was binarily encoded for logistic regression. We declared variants from this analysis as significant if their P values were less than 5 × 10−8. For all single-variant associations in TOPMed, single variant associations for each variant with minor allele frequency (MAF) greater than 1% in individuals with a single mCA was performed with SAIGE. For single-variant associations in BioVU, AoU, and UKB, Regenie v3.3 was used. A random selection of 500,000 variants for step one with a minor allele count >5,000 were included for step one. Variants with a MAF < 0.001 and a genotyping rate < 0.1 were excluded for the second step. Samples that did not report assigned male or female at birth were also excluded. 
+
+For TOPMed, GWAS was performed using the Encore analysis server (https://encore.sph.umich.edu).  
+
+Regenie v.3.3 was ran on the All of Us researcher workbench, UK Biobank research analysis platform, and BioVU Terra.bio platform.
+
+Step 1 options for Regenie v.3.3:
+
+    --step 1 \
+    --bed ukb_imp_step1 \
+    --phenoFile mca_prev_gwas_ypkz_ukb_11182024_nodups.txt \
+    --bsize 1000 \
+    --use-relative-path \
+    --extract /home/dnanexus/PACER_UKB_GWAS_step1QC_plink_mac5000_thinned.snplist \
+    --covarFile mca_prev_gwas_ypkz_ukb_11182024_nodups.txt \
+    --bt \
+    --phenoColList mca \
+    --covarColList age,age2,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10 \
+    --catCovarList sex,smoking \
+    --out mca_overall_prev_ukb
+
+
+After Step 1 was ran with 500,000 variants, Step 2 was ran separately by chromosome in parallel. 
+
+Step 2 options for Regenie v.3.3 (example of chr1):
+
+    --step 2 \
+    --bgen ukb22828_c14_b0_v3.bgen \
+    --phenoFile mca_prev_gwas_ypkz_ukb_11182024_nodups.txt \
+    --bsize 200 \
+    --pThresh 0.05 \
+    --test additive \
+    --pred mca_overall_prev_ukb_pred.list \
+    --gz \
+    --sample ukb22828_c14_b0_v3.sample \
+    --extract /home/dnanexus/imputed_UKB_GWAS_step2QC_plink_maf0.001_geno0.1_chr14.snplist \
+    --covarFile mca_prev_gwas_ypkz_ukb_11182024_nodups.txt \
+    --bt \
+    --firth \
+    --approx \
+    --firth-se \
+    --phenoColList mca \
+    --covarColList age,age2,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10 \
+    --catCovarList sex,smoking \
+    --ref-first \
+    --htp ukb22828_c14_b0_v3 \
+    --out mca_overall_prev_ukb_ukb22828_c14_b0_v3
+
+Meta-analysis was performed with the METAL version from 2011-03-25 using the standard-error analysis scheme. METAL script available [here](https://github.com/bicklab/mca-1m/blob/main/YP-trans-mca-gwas-metal-script.txt).
+
+## Proteomic signatures of aut-mCAs
+A total of 1,465 proteins were tested in 52,705 participants in the UK biobank. Proteomics was measured by Olink (Olink Proteomics; Uppsala, Sweden) using a proximity-extension immunoassay-based method, including proteins from cardiovascular, inflammation, cardiometabolic, neurology, oncology, and other panels. Linear regression models were fitted with aut-mCAs (lymphoid, myeloid, and CLL-associated as described in Supplementary Table 8) as exposures, the level of proteins as outcomes, and various covariates, including age at blood draw (continuous), age squared (continuous), genetic sex (categorical), current smoking status (categorical), and principal components (continuous). Linear regression models were fitted among participants with aut-mCAs with clonal fraction of the aut-mCA as an exposure, the level of proteins as outcomes, and various covariates, including age at blood draw (continuous), age squared (continuous), genetic sex (categorical), current smoking status (categorical), and principal components (continuous). Linear regression models were performed using the R function 'glm'. The Bonferroni threshold of P value was defined by 0.05/1,465 = 3.41 × 10-5.
+
+Code available in: [Proteomic notebook](https://github.com/bicklab/mca-1m/blob/main/KZ_Protomics_association.ipynb).
+
+## Aut-mCAs and polygenic risk score associations
+The polygenic risk scores for chronic lymphocytic leukemia (CLL-PRS) and genetically predicted leukocyte telomere length (gLTL) were calculated for the 1KG-EUR-like population in the AoU, UKB and BioVU. To compute the PRS, we first identified representative SNPs from each of susceptibility loci based on the most recent and comprehensive GWAS of CLL and LTL.18,19 A total of 41 SNPs and 131 SNPs were used for generating European-specific CLL-PRS and LTL-PRS, respectively (Supplementary Table 7, 16). The PRSs were created by summing all variants used for PRS generation with the following formula:
+PRS = βi ·SNPi for each SNP from 1 to i.
+Where βi represents the estimated weight (i.e., the natural logarithm of the odds ratio [OR]) of the i-th SNP, derived from the reference datasets, and SNPi is the genotype dose of each risk allele for that SNP. PRS values were categorized into low (<20%), intermediate (20% ≤ PRS <80%), or high (≥80%) genetic risk groups. To assess the association between PRS and mCA incidence, logistic regression models were employed to estimate ORs and 95% CIs, adjusting for age at blood draw, age squared, genetic sex, and current smoking status. The analysis was performed by each dataset and combined through inverse variance-weighted, fix-effects or random-effects meta-analysis (R package "metafor").
+
+Code available in:
+
+CLL-PRS: [CLL notebook](https://github.com/bicklab/mca-1m/blob/main/KZ_CLL_PRS.ipynb).
+
+gLTL: [LTL notebook](https://github.com/bicklab/mca-1m/blob/main/KZ_gLTL.ipynb).
+
+## Incident cytosis analysis
+We conducted a case-control study of participants from AoU and UKB. Individuals were eligible for the study if they had sequencing/genotyping for mCA detection and longitudinal complete blood count (CBC) data, without evidence of cytopenia or cytosis, acute myeloid leukemia (AML), myelodysplastic syndrome (MDS), myelofibrosis, or CLL prior to sequencing. Longitudinal CBC was defined as at least three CBC measurements, including one within a year of sequencing and two on or after the date of sequencing. The final CBC measurement had to occur at least 120 days after sequencing or the first CBC measurement, whichever came later. CBC measurements occurring greater than one year before sequencing were not included in the analysis. Participants with autosomal mCAs were matched 1:3 with controls on age, sex, and smoking status. The follow-up period commenced at the date of sequencing and terminated at the earliest occurrence of myelofibrosis, MDS, AML, CLL, or death. 
+
+This code was adapted from [Brogan & Kishtagari et al's analysis of the incident risk of cytopenia of clonal hematopoiesis of indeterminate potential](https://doi.org/10.1101/2024.09.30.24314665).
+
+Code available in: [Blood counts notebook](https://github.com/bicklab/mca-1m/blob/main/YP-mCA-blood-counts-notebook.ipynb).
+
+## Phenome-wide association study of aut-mCAs
+AoU, UKB, and BioVU cohorts, which have available outcome data, were included in the Phenome-wide association studies (PheWAS). We determined phenome-wide clinical outcomes based on PheCodes (https://phewascatalog.org/phewas/#phe12) derived from International Classification of Diseases, Ninth or Tenth Revision (ICD-9/ICD-10) codes curated from EHRs. For each subject, the presence of any ICD codes corresponding to a PheCode inclusion criterion classified the subject as a case, while the absence of these codes classified the subject as a control. ​​In addition to overall aut-mCAs, we leveraged the large sample size of this study to investigate specific types of aut-mCAs. We selected mCA types with a sample size of ≥200 in at least one dataset, resulting in 18 types included in the analysis. For the PheWAS analyses in UKB, AoU, and BioVU, we applied Cox proportional hazards models (using the R package "survival") to evaluate associations between mCAs (or specific mCA types) and the risk of various phenotypes, estimating hazard ratios (HRs) and 95% confidence intervals (CIs). The models were adjusted for age at blood draw (continuous), age squared (continuous), genetic sex (categorical), current smoking status (categorical), and principal components (continuous). PheWAS analysis was performed by each dataset and combined through inverse variance-weighted, fix-effects or random-effects meta-analysis (R package "metafor").
+
+Code available in:
+
+Total mCA PheWAS: [mCA PheWAS notebook](https://github.com/bicklab/mca-1m/blob/main/KZ_PheWAS_BioVU.ipynb).
+
+Specific type of mCA PheWAS: [specific mCA PheWAS notebook](https://github.com/bicklab/mca-1m/blob/main/KZ_PheWAS_specificmCA_UKB.ipynb).
+
+Meta-analysis of PheWAS: [PheWAS meta analysis notebook](https://github.com/bicklab/mca-1m/blob/main/PheWAS_meta.R).
+
+## Mediation analysis
+Mediation analyses (using the R package "mediation") were conducted to evaluate whether mCA mediated the relationship between CLL-PRS and CLL. This approach estimates the total effect of CLL-PRS on CLL and decomposes it into the direct effect (the effect of CLL-PRS on CLL independent of aut-mCAs) and the indirect effect (the portion of the effect mediated through aut-mCAs). The mediation analysis was performed using a two-stage regression process: first, modeling the association between CLL-PRS and aut-mCAs (mediator model), and second, modeling the association between aut-mCAs and CLL while adjusting for CLL-PRS (outcome model). The average causal mediation effect (ACME) and average direct effect (ADE) were estimated, with statistical significance evaluated through bootstrapping. The same covariates as in the Cox proportional hazards models were applied, including age, age squared, sex, ancestry, and smoking status, were applied in both models. The mediation analysis relies upon the assumption that there is not a confounding variable that increases both risk of aut-mCA and CLL. Given that mCAs are implicated in clonal expansion and genomic instability—key processes in CLL pathogenesis—it is plausible that aut-mCAs act as intermediaries linking genetic predisposition (via CLL-PRS) to the development of CLL. The analysis above of each dataset was combined through inverse variance-weighted, fix-effects or random-effects meta-analysis (R package "metafor").
+
+Code available in: [Mediation notebook](https://github.com/bicklab/mca-1m/blob/main/KZ_MediationAnalysis.R).
+
+## Mendelian randomization between aut-mCAs and CLL
+
+We performed two-sample Mendelian randomization to assess the causal relationship between aut-mCAs and CLL. Five independent genome-wide significant SNPs associated with aut-mCAs were used as genetic instruments (Supplemental Table 5). The association between these instruments and CLL was obtained from FinnGen (finn-b-C3_CLL). After harmonization using TwoSampleMR (v0.6.8), one SNP was removed for being palindromic with intermediate allele frequencies. We implemented multiple MR methods: inverse variance weighted (IVW) as primary analysis and MR-Egger regression to assess pleiotropy. Sensitivity analyses included leave-one-out analysis and assessment of heterogeneity using Cochran's Q statistic. Causal estimates are reported as odds ratios with 95% confidence intervals, representing the change in CLL odds per unit increase in log-odds of aut-mCA.
+
+Code available in: [MR notebook](https://github.com/bicklab/mca-1m/blob/main/YP-MR-notebook.ipynb).
+
+## Data
+This analysis was performed on the [UK Biobank DNA Nexus Research Analysis Platform](https://ukbiobank.dnanexus.com), BioVU Terra.bio environment, and [All of Us Research Workbench](https://workbench.researchallofus.org/).
+
+## Citation
+If you use this code or find it helpful, please cite [Zhao & Pershad et al, medRxiv, 2025](https://doi.org/10.1101/2025.03.05.25323443).
+
+## License 
+This project is licensed under the MIT License:
+
+MIT License
+
+Copyright (c) [2025] [Yash Pershad]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+## Acknowledgements
+This work was supported by National Institutes of Health grant R01AG083736 (A.G.B., P.L.A., P.S.), National Institutes of Health grant R01HL117626, National Institutes of Health contract HHSN268201800002I, National Institutes of Health grant R01HL120393, National Institutes of Health grant U01HL120393, National Institutes of Health contract HHSN268201800001I, National Institutes of Health grant DP5OD029586 (A.G.B.) and National Institutes of Health grant T32GM007347 (Y.P.).
+
+## Contact
+Yash Pershad, yash.pershad@vanderbilt.edu
