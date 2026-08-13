@@ -5,16 +5,15 @@ This repository contains the code and analysis scripts for [Zhao & Pershad et al
 ## Table of Contents
 1. [Autosomal mosaic chromosomal alteration (aut-mCA) detection with MoChA](#autosomal-mosaic-chromosomal-alteration-aut-mca-detection-with-mocha)
 2. [Identification of putative drivers of aut-mCAs](#identification-of-putative-drivers-of-aut-mcas)
-3. [Rare variant analysis supporting putative drivers](#rare-variant-analysis-supporting-putative-drivers)
-4. [CHIP and aut-mCA co-occurrence](#chip-and-aut-mca-co-occurrence)
-5. [Aut-mCA "cis" chromosome-wide association study](#aut-mca-cis-chromosome-wide-association-study)
-6. [Aut-mCA "trans" genome-wide association study](#aut-mca-trans-genome-wide-association-study)
-7. [Proteomic signatures of aut-mCAs](#proteomic-signatures-of-aut-mcas)
-8. [Aut-mCAs and polygenic risk score associations](#aut-mcas-and-polygenic-risk-score-associations)
-9. [Incident cytosis analysis](#incident-cytosis-analysis)
-10. [Phenome-wide association study of aut-mCAs](#phenome-wide-association-study-of-aut-mcas)
-11. [Mediation analysis](#mediation-analysis)
-12. [Mendelian randomization between aut-mCAs and CLL](#mendelian-randomization-between-aut-mcas-and-cll)
+3. [CHIP and aut-mCA co-occurrence](#chip-and-aut-mca-co-occurrence)
+4. [Aut-mCA "cis" chromosome-wide association study](#aut-mca-cis-chromosome-wide-association-study)
+5. [Aut-mCA "trans" genome-wide association study](#aut-mca-trans-genome-wide-association-study)
+6. [Proteomic signatures of aut-mCAs](#proteomic-signatures-of-aut-mcas)
+7. [Aut-mCAs and polygenic risk score associations](#aut-mcas-and-polygenic-risk-score-associations)
+8. [Incident cytosis analysis](#incident-cytosis-analysis)
+9. [Phenome-wide association study of aut-mCAs](#phenome-wide-association-study-of-aut-mcas)
+10. [Mediation analysis](#mediation-analysis)
+11. [Mendelian randomization between aut-mCAs and CLL](#mendelian-randomization-between-aut-mcas-and-cll)
 
 
 ## Autosomal mosaic chromosomal alteration (aut-mCA) detection with MoChA
@@ -102,46 +101,6 @@ assessed separately by the permutation test above.
 
 Code available:
 [MSAR definition](https://github.com/bicklab/mca-1m/blob/main/msar_define.R)
-
-## Rare variant analysis supporting putative drivers
-To provide support that putative driver genes caused aut-mCAs, we conducted a rare variant collapsing analysis for rare germline missense, frameshift, deletion, and stop-gain variants within putative driver genes. We performed this analysis in 468,809 people using the UK Biobank's whole exome sequences. The omnibus test SKATO was selected for the rare variant analysis because it combines variance component tests and burden tests. Aut-mCAs in chromosome arms (p and q separately) with 25 cases per cohort were included and encoded binarily. To control for multiple comparisons, we defined a significance threshold of P < 0.05/(effective number of variants) for each aut-mCA type. We used a Regenie v3.3 pipeline, using a docker image provided by the software authors. We restricted step 1 to a random selection of 500,000 extremely common variants. We restricted step 2 to minor allele frequency < 0.01 in coding regions with missense, frameshift, deletion, or stop-gain mask annotations.
-
-Example provided for chr9-cnloh-p:
-
-Step 1 options for Regenie v.3.3:
-
-      --step 1 \
-      --bed ukb_imp_step1 \
-      --phenoFile chr9-cnloh-p.txt \
-      --bsize 1000 \
-      --use-relative-path \
-      --bt \
-      --extract PACER_UKB_GWAS_step1QC_plink_mac5000_thinned.snplist \
-      --covarFile chr9-cnloh-p.txt \
-      --phenoColList mca \
-      --covarColList age,age2,smoking,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10 \
-      --catCovarList sex \
-      --out chr9_cnloh_p
-
-Step 2 options for Regenie v.3.3:
-
-      --step 2 \
-      --bgen ukb23159_c9_b0_v1.bgen \
-      --phenoFile chr9-cnloh-p.txt \
-      --bsize 200 \
-      --pred chr9_cnloh_p_pred.list \
-      --sample ukb23159_c9_b0_v1.sample \
-      --covarFile chr9-cnloh-p.txt \
-      --anno-file ukb_rare_var_anno_snps_chr9.txt \
-      --set-list ukb_rare_vars_gene_list_chr9.txt \
-      --mask-def ubk_rare_var_mask.txt \
-      --phenoColList mca \
-      --covarColList age,age2,smoking,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10 \
-      --catCovarList sex \
-      --ref-first \
-      --vc-tests skato \
-      --bt \
-      --out chr9_cnloh_p_ukb23159_c9_b0_v1.bgen
 
 ## CHIP and aut-mCA co-occurrence
 
