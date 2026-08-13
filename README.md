@@ -28,7 +28,7 @@ In TOPMed, MoChA version 1.11, a haplotype-phasing tool for mCA detection was us
 
 For BioVU, detection of mCAs was performed starting from raw IDAT files from the Illumina MEGAEX, as previously described in [Kishtagari et al, Blood Cancer Journal, 2024](https://www.nature.com/articles/s41408-023-00974-9).
 
-In All of Us, for the version 7 of the genotyping data, detection of mCAs was performed starting from raw IDAT files from the Illumina MEGAEX with MoChA version 1.11 with the same methods as performed in BioVU. The MoChA WDL as described [here](https://github.com/freeseek/mochawdl) was ran on a Cromwell Server on the All of Us Research Workbench using IDAT files in version 7 of the genotyping data, with phasing from 1000 Genomes.
+In All of Us, for the version 8 of the genotyping data, detection of mCAs was performed starting from raw IDAT files from the Illumina MEGAEX with MoChA version 1.11. The MoChA WDL as described [here](https://github.com/freeseek/mochawdl) was ran on a Cromwell Server on the All of Us Research Workbench using IDAT files in version 8 of the genotyping data, with phasing from 1000 Genomes.
 
 In this analysis, we defined mCA events by focusing exclusively on autosomal mCA calls and excluding any loss of X and Y chromosome events. The mCA calls included copy-neutral loss of heterozygosity (CN-LOH), losses, gains of chromosomal regions, and mCAs with undetermined copy changes. 
 
@@ -106,7 +106,7 @@ Code available:
 
 ## CHIP and aut-mCA co-occurrence
 
-A total of 74 canonical CHIP genes were screened for potential CHIP mutations using the Mutect2 somatic variant caller (Vlasschaert et al. Blood. 2023 May 4;141(18):2214-2223). Variants included in the preliminary dataset met the following criteria: presence in a pre-established list of candidate CHIP variants, total sequencing depth ≥ 20, alternate allele read depth count ≥ 5, and representation in both sequencing directions (i.e., F1R2 ≥ 1 and F2R1 ≥ 1). CHIP mutations were defined as those with a variant allele fraction (VAF) ≥ 0.02. Fisher's exact test was used to calculate if CHIP and aut-mCAs occurred more frequently than by chance, after correction for multiple hypothesis testing.
+A total of 74 canonical CHIP genes were screened for potential CHIP mutations using the Mutect2 somatic variant caller (Vlasschaert et al. Blood. 2023 May 4;141(18):2214-2223). Variants included in the preliminary dataset met the following criteria: presence in a pre-established list of candidate CHIP variants, total sequencing depth ≥ 20, alternate allele read depth count ≥ 5, and representation in both sequencing directions (i.e., F1R2 ≥ 1 and F2R1 ≥ 1). CHIP mutations were defined as those with a variant allele fraction (VAF) ≥ 0.02. Firth logistic regression was used to calculate if CHIP and aut-mCAs occurred more frequently than by chance, after correction for multiple hypothesis testing.
 
 Code available in: [Co-occurrence Rcode](https://github.com/bicklab/mca-1m/blob/main/KZ_CHIP_mCA_cooccurr.R)
 
@@ -531,14 +531,14 @@ Code available:
 [Cluster identity and locus attribution](https://github.com/bicklab/mca-1m/blob/main/interpret_trs.R).
 
 ## Proteomic signatures of aut-mCAs
-A total of 1,465 proteins were tested in 52,705 participants in the UK biobank. Proteomics was measured by Olink (Olink Proteomics; Uppsala, Sweden) using a proximity-extension immunoassay-based method, including proteins from cardiovascular, inflammation, cardiometabolic, neurology, oncology, and other panels. Linear regression models were fitted with aut-mCAs (lymphoid, myeloid, and CLL-associated as described in Supplementary Table 8) as exposures, the level of proteins as outcomes, and various covariates, including age at blood draw (continuous), age squared (continuous), genetic sex (categorical), current smoking status (categorical), and principal components (continuous). Linear regression models were fitted among participants with aut-mCAs with clonal fraction of the aut-mCA as an exposure, the level of proteins as outcomes, and various covariates, including age at blood draw (continuous), age squared (continuous), genetic sex (categorical), current smoking status (categorical), and principal components (continuous). Linear regression models were performed using the R function 'glm'. The Bonferroni threshold of P value was defined by 0.05/1,465 = 3.41 × 10-5.
+A total of 1,465 proteins were tested in 52,705 participants in the UK biobank. Proteomics was measured by Olink (Olink Proteomics; Uppsala, Sweden) using a proximity-extension immunoassay-based method, including proteins from cardiovascular, inflammation, cardiometabolic, neurology, oncology, and other panels. Linear regression models were fitted with aut-mCAs (lymphoid, myeloid, and CLL-associated as described in Supplementary Table 9) as exposures, the level of proteins as outcomes, and various covariates, including age at blood draw (continuous), age squared (continuous), genetic sex (categorical), current smoking status (categorical), and principal components (continuous). Linear regression models were fitted among participants with aut-mCAs with clonal fraction of the aut-mCA as an exposure, the level of proteins as outcomes, and various covariates, including age at blood draw (continuous), age squared (continuous), genetic sex (categorical), current smoking status (categorical), and principal components (continuous). Linear regression models were performed using the R function 'glm'. The Bonferroni threshold of P value was defined by 0.05/1,465 = 3.41 × 10-5.
 
 Code available in: [Proteomic notebook](https://github.com/bicklab/mca-1m/blob/main/KZ_Protomics_association.ipynb).
 
 ## Aut-mCAs and polygenic risk score associations
-The polygenic risk scores for chronic lymphocytic leukemia (CLL-PRS) and genetically predicted leukocyte telomere length (gLTL) were calculated for the 1KG-EUR-like population in the AoU, UKB and BioVU. To compute the PRS, we first identified representative SNPs from each of susceptibility loci based on the most recent and comprehensive GWAS of CLL and LTL.18,19 A total of 41 SNPs and 131 SNPs were used for generating European-specific CLL-PRS and LTL-PRS, respectively (Supplementary Table 7, 16). The PRSs were created by summing all variants used for PRS generation with the following formula:
+The polygenic risk scores for chronic lymphocytic leukemia (CLL-PRS) and genetically predicted leukocyte telomere length (gLTL) were calculated for the 1KG-EUR-like population in the AoU, UKB and BioVU. To compute the PRS, we first identified representative SNPs from each of susceptibility loci based on the most recent and comprehensive GWAS of CLL and LTL.18,19 A total of 41 SNPs and 131 SNPs were used for generating European-specific CLL-PRS and LTL-PRS, respectively. The PRSs were created by summing all variants used for PRS generation with the following formula:
 PRS = βi ·SNPi for each SNP from 1 to i.
-Where βi represents the estimated weight (i.e., the natural logarithm of the odds ratio [OR]) of the i-th SNP, derived from the reference datasets, and SNPi is the genotype dose of each risk allele for that SNP. PRS values were categorized into low (<20%), intermediate (20% ≤ PRS <80%), or high (≥80%) genetic risk groups. To assess the association between PRS and mCA incidence, logistic regression models were employed to estimate ORs and 95% CIs, adjusting for age at blood draw, age squared, genetic sex, and current smoking status. The analysis was performed by each dataset and combined through inverse variance-weighted, fix-effects or random-effects meta-analysis (R package "metafor").
+Where βi represents the estimated weight (i.e., the natural logarithm of the odds ratio [OR]) of the i-th SNP, derived from the reference datasets, and SNPi is the genotype dose of each risk allele for that SNP. PRS values were categorized into low (<20%), intermediate (20% ≤ PRS <80%), or high (≥80%) genetic risk groups. To assess the association between PRS and mCA incidence, firth logistic regression models were employed to estimate ORs and 95% CIs, adjusting for age at blood draw, age squared, genetic sex, and current smoking status. The analysis was performed by each dataset and combined through inverse variance-weighted, fix-effects or random-effects meta-analysis (R package "metafor").
 
 Code available in:
 
@@ -560,20 +560,16 @@ Code available in:
 
 Total mCA PheWAS: [mCA PheWAS notebook](https://github.com/bicklab/mca-1m/blob/main/KZ_PheWAS_BioVU.ipynb).
 
-Specific type of mCA PheWAS: [specific mCA PheWAS notebook](https://github.com/bicklab/mca-1m/blob/main/KZ_PheWAS_specificmCA_UKB.ipynb).
+Specific type of mCA PheWAS: [specific mCA PheWAS notebook](https://github.com/bicklab/mca-1m/blob/main/KZ_PheWAS_spe_mCA.r).
 
-Meta-analysis of PheWAS: [PheWAS meta analysis notebook](https://github.com/bicklab/mca-1m/blob/main/PheWAS_meta.R).
+Meta-analysis of PheWAS: [PheWAS meta analysis notebook](https://github.com/bicklab/mca-1m/blob/main/KZ_meta_spe_mca_phewas.r).
+
 
 ## Mediation analysis
 Mediation analyses (using the R package "mediation") were conducted to evaluate whether mCA mediated the relationship between CLL-PRS and CLL. This approach estimates the total effect of CLL-PRS on CLL and decomposes it into the direct effect (the effect of CLL-PRS on CLL independent of aut-mCAs) and the indirect effect (the portion of the effect mediated through aut-mCAs). The mediation analysis was performed using a two-stage regression process: first, modeling the association between CLL-PRS and aut-mCAs (mediator model), and second, modeling the association between aut-mCAs and CLL while adjusting for CLL-PRS (outcome model). The average causal mediation effect (ACME) and average direct effect (ADE) were estimated, with statistical significance evaluated through bootstrapping. The same covariates as in the Cox proportional hazards models were applied, including age, age squared, sex, ancestry, and smoking status, were applied in both models. The mediation analysis relies upon the assumption that there is not a confounding variable that increases both risk of aut-mCA and CLL. Given that mCAs are implicated in clonal expansion and genomic instability—key processes in CLL pathogenesis—it is plausible that aut-mCAs act as intermediaries linking genetic predisposition (via CLL-PRS) to the development of CLL. The analysis above of each dataset was combined through inverse variance-weighted, fix-effects or random-effects meta-analysis (R package "metafor").
 
 Code available in: [Mediation notebook](https://github.com/bicklab/mca-1m/blob/main/KZ_MediationAnalysis.R).
 
-## Mendelian randomization between aut-mCAs and CLL
-
-We performed two-sample Mendelian randomization to assess the causal relationship between aut-mCAs and CLL. Five independent genome-wide significant SNPs associated with aut-mCAs were used as genetic instruments (Supplemental Table 5). The association between these instruments and CLL was obtained from FinnGen (finn-b-C3_CLL). After harmonization using TwoSampleMR (v0.6.8), one SNP was removed for being palindromic with intermediate allele frequencies. We implemented multiple MR methods: inverse variance weighted (IVW) as primary analysis and MR-Egger regression to assess pleiotropy. Sensitivity analyses included leave-one-out analysis and assessment of heterogeneity using Cochran's Q statistic. Causal estimates are reported as odds ratios with 95% confidence intervals, representing the change in CLL odds per unit increase in log-odds of aut-mCA.
-
-Code available in: [MR notebook](https://github.com/bicklab/mca-1m/blob/main/YP-MR-notebook.ipynb).
 
 ## Data
 This analysis was performed on the [UK Biobank DNA Nexus Research Analysis Platform](https://ukbiobank.dnanexus.com), BioVU Terra.bio environment, and [All of Us Research Workbench](https://workbench.researchallofus.org/).
