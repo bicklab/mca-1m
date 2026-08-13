@@ -451,6 +451,85 @@ cis locus, *FRA10B*, gives the strongest allelic shift signal
 (P = 7.41 × 10⁻⁵⁴), and all ten retained cis loci show significant allelic shift.
 Calibration was confirmed with a QQ plot of allelic-shift P values.
 
+
+## Single-cell chromatin enrichment of inherited aut-mCA risk (SCAVENGE)
+
+We applied SCAVENGE (v1.0.2,
+[sankaranlab/SCAVENGE](https://github.com/sankaranlab/SCAVENGE)) to identify
+trait-relevant cell states for aut-mCA susceptibility.
+
+### Trait input
+
+Fine-mapped variants from the aggregate (trans) aut-mCA meta-analysis were used
+to construct a trait BED weighted by posterior inclusion probability, with PP in
+column 5 as g-chromVAR requires. Variants were retained if they fell within a 95%
+credible set with PP > 0.001. Where overlapping ±250 kb windows assigned a
+variant a PIP in more than one locus, the maximum PP per physical variant was
+kept, so no variant is double-counted.
+
+The GWAS is on GRCh38 and the chromatin reference is on hg19, so the trait BED is
+written in both builds with build sidecar files. The downstream stage detects the
+reference's build from its genomic ranges and asserts that it matches the BED it
+selects; builds are never mixed silently.
+
+Code available:
+[Trait BED construction](https://github.com/bicklab/mca-1m/blob/main/make_trait_bed.R).
+
+### Chromatin reference
+
+Variants were intersected with peaks from the human hematopoiesis scATAC-seq
+reference of Granja and Satpathy et al.
+([GSE129785](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE129785), hg19),
+comprising 571,400 peaks across 63,882 cells, including FACS-sorted HSC, MPP,
+LMPP, CMP, GMP, MEP and CLP populations alongside bulk PBMC, bone marrow and
+CD34+ samples.
+
+GC bias correction, background peak selection, TF-IDF normalization, LSI
+embedding and the mutual k-nearest-neighbour cell graph depend only on the
+reference, not the trait, and are computed once and cached. Every trait is
+therefore scored on an identical cell graph, so trait-relevance scores are
+comparable across analyses.
+
+Code available:
+[Reference cache](https://github.com/bicklab/mca-1m/blob/main/build_ref_cache.R).
+
+### Enrichment and network propagation
+
+Peak-level enrichment was computed with gchromVAR against the cached background
+peaks, yielding a per-cell z-score. The top-scoring cells were taken as seeds and
+propagated across the cell–cell similarity network by random walk. The resulting
+scores were outlier-capped, min-max scaled, and multiplied by a scale factor to
+give a per-cell **trait relevance score (TRS)**. Per-cell significance was
+assessed against a permuted background.
+
+Peak extension widens the intervals used to assign a variant to a peak, so that a
+lead falling a few base pairs outside a called boundary is not discarded;
+accessibility, GC bias and background peaks are never altered. Both an unextended
+(ext0) and an extended setting are run for every trait, and the Spearman
+correlation of cell-type mean TRS between them is reported as a standing
+robustness check. Results in this study use the unextended setting.
+
+Code available:
+[TRS computation](https://github.com/bicklab/mca-1m/blob/main/scavenge_trs.R) |
+
+### Interpretation
+
+The reference labels cell clusters numerically and ships no cluster-to-cell-type
+map. Cluster identity was therefore assigned from the FACS-sorted samples
+contributing to each cluster: a cluster's putative identity is the modal sorted
+population among its sorted cells, reported with a purity fraction, and clusters
+with few sorted cells or low purity are marked unresolved rather than named.
+Because the sorted populations are ground truth at the level of individual cells,
+TRS was additionally compared between sorted populations directly, which is not
+subject to the mixed composition of the clusters.
+
+We also attribute the landed posterior probability back to the loci that
+contributed it, since a high-PP variant falling outside every reference peak
+contributes nothing to the TRS.
+
+Code available:
+[Cluster identity and locus attribution](https://github.com/bicklab/mca-1m/blob/main/interpret_trs.R).
+
 ## Proteomic signatures of aut-mCAs
 A total of 1,465 proteins were tested in 52,705 participants in the UK biobank. Proteomics was measured by Olink (Olink Proteomics; Uppsala, Sweden) using a proximity-extension immunoassay-based method, including proteins from cardiovascular, inflammation, cardiometabolic, neurology, oncology, and other panels. Linear regression models were fitted with aut-mCAs (lymphoid, myeloid, and CLL-associated as described in Supplementary Table 8) as exposures, the level of proteins as outcomes, and various covariates, including age at blood draw (continuous), age squared (continuous), genetic sex (categorical), current smoking status (categorical), and principal components (continuous). Linear regression models were fitted among participants with aut-mCAs with clonal fraction of the aut-mCA as an exposure, the level of proteins as outcomes, and various covariates, including age at blood draw (continuous), age squared (continuous), genetic sex (categorical), current smoking status (categorical), and principal components (continuous). Linear regression models were performed using the R function 'glm'. The Bonferroni threshold of P value was defined by 0.05/1,465 = 3.41 × 10-5.
 
