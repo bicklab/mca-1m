@@ -101,7 +101,7 @@ descriptive rather than a statistical test of gene-class enrichment**, which is
 assessed separately by the permutation test above.
 
 Code available:
-[MSAR definition](https://github.com/bicklab/mca-1m/blob/main/msar-define.R) |
+[MSAR definition](https://github.com/bicklab/mca-1m/blob/main/msar_define.R)
 
 ## Rare variant analysis supporting putative drivers
 To provide support that putative driver genes caused aut-mCAs, we conducted a rare variant collapsing analysis for rare germline missense, frameshift, deletion, and stop-gain variants within putative driver genes. We performed this analysis in 468,809 people using the UK Biobank's whole exome sequences. The omnibus test SKATO was selected for the rare variant analysis because it combines variance component tests and burden tests. Aut-mCAs in chromosome arms (p and q separately) with 25 cases per cohort were included and encoded binarily. To control for multiple comparisons, we defined a significance threshold of P < 0.05/(effective number of variants) for each aut-mCA type. We used a Regenie v3.3 pipeline, using a docker image provided by the software authors. We restricted step 1 to a random selection of 500,000 extremely common variants. We restricted step 2 to minor allele frequency < 0.01 in coding regions with missense, frameshift, deletion, or stop-gain mask annotations.
