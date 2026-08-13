@@ -107,7 +107,7 @@ Code available:
 
 A total of 74 canonical CHIP genes were screened for potential CHIP mutations using the Mutect2 somatic variant caller (Vlasschaert et al. Blood. 2023 May 4;141(18):2214-2223). Variants included in the preliminary dataset met the following criteria: presence in a pre-established list of candidate CHIP variants, total sequencing depth ≥ 20, alternate allele read depth count ≥ 5, and representation in both sequencing directions (i.e., F1R2 ≥ 1 and F2R1 ≥ 1). CHIP mutations were defined as those with a variant allele fraction (VAF) ≥ 0.02. Fisher's exact test was used to calculate if CHIP and aut-mCAs occurred more frequently than by chance, after correction for multiple hypothesis testing.
 
-Code available in: [Co-occurrence Rcode](https://github.com/bicklab/mca-1m/blob/main/KZ_CHIP_mCA_cooccurrence.R)
+Code available in: [Co-occurrence Rcode](https://github.com/bicklab/mca-1m/blob/main/KZ_CHIP_mCA_cooccurr.R)
 
 ## Aut-mCA "cis" chromosome-wide association study
 
@@ -425,9 +425,9 @@ Where βi represents the estimated weight (i.e., the natural logarithm of the od
 
 Code available in:
 
-CLL-PRS: [CLL notebook](https://github.com/bicklab/mca-1m/blob/main/KZ_CLL_PRS.ipynb).
+mCA-PRS: [mCA analysis](https://github.com/bicklab/mca-1m/blob/main/KZ_PRS_mCA_CLL_LTL.r).
 
-gLTL: [LTL notebook](https://github.com/bicklab/mca-1m/blob/main/KZ_gLTL.ipynb).
+PRS calculation: [PRS wdl](https://github.com/bicklab/mca-1m/blob/main/EC_prs_scatter).
 
 ## Incident cytosis analysis
 We conducted a case-control study of participants from AoU and UKB. Individuals were eligible for the study if they had sequencing/genotyping for mCA detection and longitudinal complete blood count (CBC) data, without evidence of cytopenia or cytosis, acute myeloid leukemia (AML), myelodysplastic syndrome (MDS), myelofibrosis, or CLL prior to sequencing. Longitudinal CBC was defined as at least three CBC measurements, including one within a year of sequencing and two on or after the date of sequencing. The final CBC measurement had to occur at least 120 days after sequencing or the first CBC measurement, whichever came later. CBC measurements occurring greater than one year before sequencing were not included in the analysis. Participants with autosomal mCAs were matched 1:3 with controls on age, sex, and smoking status. The follow-up period commenced at the date of sequencing and terminated at the earliest occurrence of myelofibrosis, MDS, AML, CLL, or death. 
