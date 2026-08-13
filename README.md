@@ -110,6 +110,100 @@ Code available in: [Co-occurrence Rcode](https://github.com/bicklab/mca-1m/blob/
 
 ## Aut-mCA "cis" chromosome-wide association study
 
+To identify germline variants associated with specific types of aut-mCAs, we
+conducted cis-GWAS analyses by restricting germline variants to those located on
+the same chromosome arm as the corresponding mCA event, evaluating local germline
+influences on somatic events occurring within the same genomic region.
+
+### Phenotype definition
+
+Aut-mCA phenotypes on individual chromosome arms (p and q analyzed separately)
+were encoded as binary traits and included if at least 25 cases were available in
+each of the four cohorts, resulting in **81 phenotypes** analyzed.
+
+### Ancestry stratification
+
+To control for population stratification, each cohort was stratified by genetic
+ancestry (1KG-EUR-like and 1KG-AFR-like, where sample size was sufficient) and
+analyzed separately, then meta-analyzed across both ancestries and all cohorts.
+Analyzing ancestries together within a cohort produced substantial test-statistic
+inflation given the strong ancestry differences in mCA prevalence.
+
+### Association testing
+
+In **TOPMed**, single-variant association testing was performed using SAIGE for
+variants with MAF > 1% through the
+[TOPMed Encore analysis server](https://encore.sph.umich.edu).
+
+In **BioVU, AoU, and UKB**, single-variant association testing used REGENIE v3.3
+with Firth correction for binary traits. Step 1 used a random subset of 500,000
+variants with MAC > 5,000. For step 2, variants with MAF < 0.001 or a genotyping
+rate < 0.1 were excluded. Participants without reported male or female sex at
+birth were excluded. Models were adjusted for age, age², sex, smoking status, and
+10 genetic principal components.
+
+Example REGENIE invocation (chr9 CN-LOH p-arm, UKB, 1KG-EUR-like):
+[cis-GWAS script](https://github.com/bicklab/mca-1m/blob/main/YP-cis-gwas-regenie.sh).
+
+### Meta-analysis
+
+Ancestry- and cohort-specific association statistics were combined using
+fixed-effect, standard-error-weighted meta-analysis in METAL (v2011-03-25).
+Example script:
+[METAL script](https://github.com/bicklab/mca-1m/blob/main/YP-cis-gwas-metal-script.txt).
+
+### Calibration
+
+Test-statistic calibration was assessed with quantile–quantile plots and genomic
+inflation factors (λGC), computed over variants on the cis arm that were tested
+in ≥ 2 cohorts. Following ancestry stratification, λGC ranged from **0.97 to
+1.10** across aut-mCA types. The exception is chr9p CN-LOH, where elevated λGC
+reflects the strong LD block at the JAK2 46/1 haplotype — many highly significant
+variants in linkage, rather than diffuse inflation.
+
+Code available:
+[QQ and λGC](https://github.com/bicklab/mca-1m/blob/main/YP-qq-lambda.R).
+
+### Significance threshold
+
+Because 81 chromosome arm-specific mCA phenotypes were tested, we applied a
+Bonferroni correction to the conventional genome-wide significance threshold:
+
+```
+5 × 10⁻⁸ / 81 = 6.2 × 10⁻¹⁰  →  study-wide threshold P < 6 × 10⁻¹⁰
+```
+
+Ten associations pass this threshold: six previously reported (*MPL*, *JAK2*,
+*FRA10B*, *ATM*, *DLK1*, *TM2D3*) and four novel (*TMEM70*, *PIK3C3*, *FBXO39*,
+*CLN5*). Full results, including per-cohort effect directions and allelic shift
+statistics, are in **Supplementary Table 6**.
+
+Locus definition and fine-mapping are described in [Locus definition and
+fine-mapping](#locus-definition-and-fine-mapping); validation of the retained
+loci by allelic shift is described in [Allelic shift
+analysis](#allelic-shift-analysis).
+
+### Sensitivity analyses
+
+Three checks on the retained loci:
+
+1. **Opposite-arm negative control.** Each significant variant was tested against
+   the same mCA type on the opposite arm of the same chromosome, where a true cis
+   effect should be null. P values ranged from 0.23 to 0.9.
+2. **Phenotype refinement at 18q=.** Most 18q CN-LOH events do not overlap
+   *PIK3C3*. Restricting the phenotype to events overlapping (or nearly
+   overlapping) rs1496805 strengthened the association (β 2.48 → 4.57), as
+   expected for a true cis effect localized to that region.
+3. **18q= excluding 1KG-EUR-like participants.** rs1496805 is near-monomorphic in
+   1KG-EUR-like individuals (AF 0.001), so they contribute essentially no signal;
+   excluding them reduces scope for stratification confounding. The association
+   remained robust (β = 3.17, SE = 0.50, P = 2 × 10⁻¹⁰).
+
+Code available:
+[Sensitivity analyses](https://github.com/bicklab/mca-1m/blob/main/YP-cis-sensitivity-analyses.R).
+
+## Aut-mCA "cis" chromosome-wide association study
+
 To identify genomic regions associated with aut-mCAs, we conducted a cis-GWAS analysis (that is, variants within the same genomic locus as the mCA) by filtering genomic variants based on their position relative to each arm of chromosomal regions. Aut-mCAs in chromosome arms (p and q separately) with 25 cases per cohort were included and encoded binarily. The number of studies supporting the association was required to be in all cohorts including UKB, AoU and TOPMed. To control for multiple comparisons, we defined a significance threshold of P < 0.05/(effective number of variants) after meta-analysis. 
 
 Step 1 options for Regenie v.3.3 (example of chr9-gain-p):
