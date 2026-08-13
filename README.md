@@ -142,15 +142,50 @@ rate < 0.1 were excluded. Participants without reported male or female sex at
 birth were excluded. Models were adjusted for age, age², sex, smoking status, and
 10 genetic principal components.
 
-Example REGENIE invocation (chr9 CN-LOH p-arm, UKB, 1KG-EUR-like):
-[cis-GWAS script](https://github.com/bicklab/mca-1m/blob/main/YP-cis-gwas-regenie.sh).
+Step 1 options for Regenie v.3.3 (example of chr9-gain-p among EUR ancestry in UKB):
+
+    --step 1 \
+    --bed ukb_imp_step1 \
+    --phenoFile chr9-gain-p.txt \
+    --bsize 1000 \
+    --use-relative-path \
+    --extract /home/dnanexus/PACER_UKB_GWAS_step1QC_plink_mac5000_thinned.snplist \
+    --covarFile chr9-gain-p.txt \
+    --bt \
+    --phenoColList mca \
+    --covarColList age,age2,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10 \
+    --catCovarList sex,smoking \
+    --out chr9-gain-p
+
+Step 2 options for Regenie v.3.3 (example of chr9-gain-p among EUR ancestry in UKB):
+
+    --step 2 \
+    --bgen ukb22828_c9_b0_v3.bgen \
+    --phenoFile chr9-gain-p.txt \
+    --bsize 200 \
+    --pThresh 0.05 \
+    --test additive \
+    --pred chr9-gain-p_pred.list \
+    --gz \
+    --sample ukb22828_c9_b0_v3.sample \
+    --extract /home/dnanexus/imputed_UKB_GWAS_step2QC_plink_maf0.001_geno0.1_chr9.snplist \
+    --covarFile chr9-gain-p.txt \
+    --bt \
+    --firth \
+    --approx \
+    --firth-se \
+    --phenoColList mca \
+    --covarColList age,age2,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10 \
+    --catCovarList sex,smoking \
+    --ref-first \
+    --htp ukb22828_c9_b0_v3 \
+    --out chr9-gain-p_ukb22828_c9_b0_v3
+
 
 ### Meta-analysis
 
 Ancestry- and cohort-specific association statistics were combined using
 fixed-effect, standard-error-weighted meta-analysis in METAL (v2011-03-25).
-Example script:
-[METAL script](https://github.com/bicklab/mca-1m/blob/main/YP-cis-gwas-metal-script.txt).
 
 ### Calibration
 
