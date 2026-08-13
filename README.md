@@ -306,7 +306,6 @@ Step 2 was run separately by chromosome in parallel (example: chr14):
 
 Meta-analysis was performed with METAL (v2011-03-25) using the standard-error
 analysis scheme, across both ancestry strata and all four cohorts.
-[METAL script](https://github.com/bicklab/mca-1m/blob/main/YP-trans-mca-gwas-metal-script.txt).
 
 ### Results
 
