@@ -197,7 +197,7 @@ reflects the strong LD block at the JAK2 46/1 haplotype — many highly signific
 variants in linkage, rather than diffuse inflation.
 
 Code available:
-[QQ and λGC](https://github.com/bicklab/mca-1m/blob/main/YP-qq-lambda.R).
+[QQ and λGC](https://github.com/bicklab/mca-1m/blob/main/qq_lambda.R).
 
 ### Significance threshold
 
@@ -235,7 +235,7 @@ Three checks on the retained loci:
    remained robust (β = 3.17, SE = 0.50, P = 2 × 10⁻¹⁰).
 
 Code available:
-[Sensitivity analyses](https://github.com/bicklab/mca-1m/blob/main/YP-cis-sensitivity-analyses.R).
+[Sensitivity analyses](https://github.com/bicklab/mca-1m/blob/main/sensitivity_analyses.R).
 
 ## Aut-mCA "cis" chromosome-wide association study
 
