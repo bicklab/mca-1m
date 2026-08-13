@@ -332,6 +332,86 @@ the single-cell chromatin enrichment analysis described in
 Code available:
 [Manhattan plot and locus heatmap](https://github.com/bicklab/mca-1m/blob/main/KZ-manhattan-and-heatmap.ipynb).
 
+## Locus definition and fine-mapping
+
+The same pipeline defines loci and fine-maps them for both the cis and trans
+analyses; it is run once per trait against the METAL output.
+
+### Analysis universe
+
+Variants were retained if BETA and SE were finite with SE > 0, and if the variant
+was tested in **≥ 2 contributing cohorts** (read from METAL's `Direction`
+string). For cis traits the analysis was additionally restricted to the
+chromosome arm carrying the mCA, with arm assignment from cytoband centromere
+positions. λGC and fine-mapping therefore describe the same variant set by
+construction.
+
+### Locus definition
+
+Independent loci were defined by greedy distance-based pruning
+(`locuszoomr::quick_peak`): take the variant with the smallest P value, remove
+all variants on that chromosome within ± 1 Mb of it, and repeat until no
+variant below the significance threshold remains. Candidate loci supported by
+fewer than `min_variants_per_peak` variants within the 1 Mb were dropped. Leads
+falling within 2 × 1 Mb of another lead are flagged rather than merged, so broad
+regions surfacing as multiple leads are visible in the output.
+
+**No LD matrix or reference panel is used at any stage.** Approximate Bayes
+factor fine-mapping requires only marginal effect sizes and standard errors,
+which makes it the appropriate choice for a multi-cohort, multi-ancestry
+meta-analysis in which no single LD panel is correct for all contributing
+strata — several lead variants are common only in 1KG-AFR-like participants.
+
+This procedure collapses multi-signal regions such as *ATM*, *MPL* and *FRA10B*
+to a single locus each; in the previous version of this analysis these appeared
+as several rows apiece.
+
+### Approximate Bayes factors and posterior inclusion probabilities
+
+For each locus, all variants within ± 250 kb of the lead were fine-mapped with
+the Wakefield/Maller approximate Bayes factor, using prior variance ω = 0.04:
+
+```
+aBF = sqrt( V / (V + ω) ) × exp( ω · BETA² / (2 · V · (V + ω)) ),   V = SE²
+
+PIP_i = aBF_i / Σ_j aBF_j        within each locus
+```
+
+Bayes factors are computed on the log scale: the exponent routinely exceeds 700
+at a strong lead, which overflows the natural-scale form and destroys the PIPs.
+Credible sets are the smallest set of variants, by descending PIP, whose
+cumulative PIP first reaches 95% and 99%.
+
+Two variants are reported per locus and they need not be the same one. The
+**sentinel** is the minimum-P variant that defined the locus; the **fine-mapped
+index variant** is the maximum-PIP variant, which can differ because the aBF
+weights the standard error as well as the effect size. Supplementary Tables 6
+and 7 report the fine-mapped index variant, and the pipeline records
+`sentinel_is_max_pip` for every locus.
+
+Because ± 250 kb windows around nearby leads can overlap, a variant may carry a
+PIP in more than one locus. These are reported rather than silently collapsed.
+
+### Prior sensitivity
+
+ω = 0.04 corresponds to a prior standard deviation of 0.2 on the log-odds, a
+convention derived from common-variant case-control GWAS. Several aut-mCA leads
+have substantially larger effects (|β| up to ~2.5 at *FRA10B* and *PIK3C3*),
+which this prior shrinks. The pipeline therefore re-runs fine-mapping at
+additional values of ω and reports credible sets at each, so it is visible
+whether a credible set is driven by the data or by the prior. Loci whose 95%
+credible set size changes by more than tenfold across ω are flagged as
+prior-limited and should be treated as unresolved rather than quoted.
+
+### Verification
+
+The implementation asserts, on every run, that posterior inclusion probabilities
+sum to 1 within each locus, and independently re-derives the top-PIP variant of
+the strongest locus scalar-wise from BETA and SE alone.
+
+Code available:
+[Fine-mapping](https://github.com/bicklab/mca-1m/blob/main/finemap_abf.R) |
+
 ## Proteomic signatures of aut-mCAs
 A total of 1,465 proteins were tested in 52,705 participants in the UK biobank. Proteomics was measured by Olink (Olink Proteomics; Uppsala, Sweden) using a proximity-extension immunoassay-based method, including proteins from cardiovascular, inflammation, cardiometabolic, neurology, oncology, and other panels. Linear regression models were fitted with aut-mCAs (lymphoid, myeloid, and CLL-associated as described in Supplementary Table 8) as exposures, the level of proteins as outcomes, and various covariates, including age at blood draw (continuous), age squared (continuous), genetic sex (categorical), current smoking status (categorical), and principal components (continuous). Linear regression models were fitted among participants with aut-mCAs with clonal fraction of the aut-mCA as an exposure, the level of proteins as outcomes, and various covariates, including age at blood draw (continuous), age squared (continuous), genetic sex (categorical), current smoking status (categorical), and principal components (continuous). Linear regression models were performed using the R function 'glm'. The Bonferroni threshold of P value was defined by 0.05/1,465 = 3.41 × 10-5.
 
