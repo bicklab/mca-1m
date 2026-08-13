@@ -237,102 +237,101 @@ Three checks on the retained loci:
 Code available:
 [Sensitivity analyses](https://github.com/bicklab/mca-1m/blob/main/sensitivity_analyses.R).
 
-## Aut-mCA "cis" chromosome-wide association study
-
-To identify genomic regions associated with aut-mCAs, we conducted a cis-GWAS analysis (that is, variants within the same genomic locus as the mCA) by filtering genomic variants based on their position relative to each arm of chromosomal regions. Aut-mCAs in chromosome arms (p and q separately) with 25 cases per cohort were included and encoded binarily. The number of studies supporting the association was required to be in all cohorts including UKB, AoU and TOPMed. To control for multiple comparisons, we defined a significance threshold of P < 0.05/(effective number of variants) after meta-analysis. 
-
-Step 1 options for Regenie v.3.3 (example of chr9-gain-p):
-
-    --step 1 \
-    --bed ukb_imp_step1 \
-    --phenoFile chr9-gain-p.txt \
-    --bsize 1000 \
-    --use-relative-path \
-    --extract /home/dnanexus/PACER_UKB_GWAS_step1QC_plink_mac5000_thinned.snplist \
-    --covarFile chr9-gain-p.txt \
-    --bt \
-    --phenoColList mca \
-    --covarColList age,age2,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10 \
-    --catCovarList sex,smoking \
-    --out chr9-gain-p
-
-Step 2 options for Regenie v.3.3 (example of chr9-gain-p):
-
-    --step 2 \
-    --bgen ukb22828_c9_b0_v3.bgen \
-    --phenoFile chr9-gain-p.txt \
-    --bsize 200 \
-    --pThresh 0.05 \
-    --test additive \
-    --pred chr9-gain-p_pred.list \
-    --gz \
-    --sample ukb22828_c9_b0_v3.sample \
-    --extract /home/dnanexus/imputed_UKB_GWAS_step2QC_plink_maf0.001_geno0.1_chr9.snplist \
-    --covarFile chr9-gain-p.txt \
-    --bt \
-    --firth \
-    --approx \
-    --firth-se \
-    --phenoColList mca \
-    --covarColList age,age2,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10 \
-    --catCovarList sex,smoking \
-    --ref-first \
-    --htp ukb22828_c9_b0_v3 \
-    --out chr9-gain-p_ukb22828_c9_b0_v3
-
-Meta-analysis for each aut-mCA per chromosome arm was performed with the METAL version from 2011-03-25 using the standard-error analysis scheme. Example METAL script available [here](https://github.com/bicklab/mca-1m/blob/main/chr9-cnloh-p-meta.txt).
-
 ## Aut-mCA "trans" genome-wide association study
 
-We also performed a genome-wide association study for aut-mCAs prevalence. Autosomal mCA prevalence was binarily encoded for logistic regression. We declared variants from this analysis as significant if their P values were less than 5 × 10−8. For all single-variant associations in TOPMed, single variant associations for each variant with minor allele frequency (MAF) greater than 1% in individuals with a single mCA was performed with SAIGE. For single-variant associations in BioVU, AoU, and UKB, Regenie v3.3 was used. A random selection of 500,000 variants for step one with a minor allele count >5,000 were included for step one. Variants with a MAF < 0.001 and a genotyping rate < 0.1 were excluded for the second step. Samples that did not report assigned male or female at birth were also excluded. 
+We performed a genome-wide association study of overall aut-mCA prevalence, with
+the presence of any aut-mCA encoded as a binary phenotype. This used the same
+ancestry-stratified framework, association software, covariates, and
+meta-analysis procedures as the cis analysis above: each cohort stratified by
+genetic ancestry (1KG-EUR-like and 1KG-AFR-like where powered), analyzed
+separately, then meta-analyzed across ancestries and cohorts.
 
-For TOPMed, GWAS was performed using the Encore analysis server (https://encore.sph.umich.edu).  
+In TOPMed, single-variant association testing used SAIGE for variants with
+MAF > 1% via the [Encore analysis server](https://encore.sph.umich.edu). In
+BioVU, AoU, and UKB, REGENIE v3.3 was used. Step 1 used a random subset of
+500,000 variants with MAC > 5,000. For step 2, variants with MAF < 0.001 or a
+genotyping rate < 0.1 were excluded, as were participants without reported male
+or female sex at birth.
 
-Regenie v.3.3 was ran on the All of Us researcher workbench, UK Biobank research analysis platform, and BioVU Terra.bio platform.
+Because this analysis evaluated a single overall aut-mCA phenotype, variants were
+considered significant at the conventional genome-wide threshold, P < 5 × 10⁻⁸.
 
-Step 1 options for Regenie v.3.3:
+REGENIE v3.3 was run on the All of Us Researcher Workbench, the UK Biobank
+Research Analysis Platform, and the BioVU Terra.bio platform.
 
-    --step 1 \
-    --bed ukb_imp_step1 \
-    --phenoFile mca_prev_gwas_ypkz_ukb_11182024_nodups.txt \
-    --bsize 1000 \
-    --use-relative-path \
-    --extract /home/dnanexus/PACER_UKB_GWAS_step1QC_plink_mac5000_thinned.snplist \
-    --covarFile mca_prev_gwas_ypkz_ukb_11182024_nodups.txt \
-    --bt \
-    --phenoColList mca \
-    --covarColList age,age2,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10 \
-    --catCovarList sex,smoking \
-    --out mca_overall_prev_ukb
+Step 1 options (example: UKB, 1KG-EUR-like):
 
+```
+--step 1 \
+--bed ukb_imp_step1 \
+--keep keep_ukb_EUR_unrelated.id \
+--phenoFile mca_prev_gwas_ukb.txt \
+--bsize 1000 \
+--use-relative-path \
+--extract PACER_UKB_GWAS_step1QC_plink_mac5000_thinned.snplist \
+--covarFile mca_prev_gwas_ukb.txt \
+--bt \
+--phenoColList mca \
+--covarColList age,age2,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10 \
+--catCovarList sex,smoking \
+--out mca_overall_prev_ukb_EUR
+```
 
-After Step 1 was ran with 500,000 variants, Step 2 was ran separately by chromosome in parallel. 
+Step 2 was run separately by chromosome in parallel (example: chr14):
 
-Step 2 options for Regenie v.3.3 (example of chr1):
+```
+--step 2 \
+--bgen ukb22828_c14_b0_v3.bgen \
+--sample ukb22828_c14_b0_v3.sample \
+--keep keep_ukb_EUR_unrelated.id \
+--phenoFile mca_prev_gwas_ukb.txt \
+--bsize 200 \
+--pThresh 0.05 \
+--test additive \
+--pred mca_overall_prev_ukb_EUR_pred.list \
+--gz \
+--extract imputed_UKB_GWAS_step2QC_plink_maf0.001_geno0.1_chr14.snplist \
+--covarFile mca_prev_gwas_ukb.txt \
+--bt \
+--firth \
+--approx \
+--firth-se \
+--phenoColList mca \
+--covarColList age,age2,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10 \
+--catCovarList sex,smoking \
+--ref-first \
+--htp ukb22828_c14_b0_v3 \
+--out mca_overall_prev_ukb_EUR_c14
+```
 
-    --step 2 \
-    --bgen ukb22828_c14_b0_v3.bgen \
-    --phenoFile mca_prev_gwas_ypkz_ukb_11182024_nodups.txt \
-    --bsize 200 \
-    --pThresh 0.05 \
-    --test additive \
-    --pred mca_overall_prev_ukb_pred.list \
-    --gz \
-    --sample ukb22828_c14_b0_v3.sample \
-    --extract /home/dnanexus/imputed_UKB_GWAS_step2QC_plink_maf0.001_geno0.1_chr14.snplist \
-    --covarFile mca_prev_gwas_ypkz_ukb_11182024_nodups.txt \
-    --bt \
-    --firth \
-    --approx \
-    --firth-se \
-    --phenoColList mca \
-    --covarColList age,age2,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10 \
-    --catCovarList sex,smoking \
-    --ref-first \
-    --htp ukb22828_c14_b0_v3 \
-    --out mca_overall_prev_ukb_ukb22828_c14_b0_v3
+Meta-analysis was performed with METAL (v2011-03-25) using the standard-error
+analysis scheme, across both ancestry strata and all four cohorts.
+[METAL script](https://github.com/bicklab/mca-1m/blob/main/YP-trans-mca-gwas-metal-script.txt).
 
-Meta-analysis was performed with the METAL version from 2011-03-25 using the standard-error analysis scheme. METAL script available [here](https://github.com/bicklab/mca-1m/blob/main/YP-trans-mca-gwas-metal-script.txt).
+### Results
+
+Five independent loci were associated with carrying any aut-mCA, three of them
+novel:
+
+| Gene | Chromosome | Novelty |
+|---|---|---|
+| *TERT* | 5 | Known (Loh et al.) |
+| *SP140* | 2 | Known (Loh et al.) |
+| *MAD1L1* | 7 | **Novel** |
+| *TCL1A* | 14 | **Novel** |
+| *ATP2A3* | 17 | **Novel** |
+
+Locus definition and fine-mapping are described in [Locus definition and
+fine-mapping](#locus-definition-and-fine-mapping); fine-mapped lead variants,
+per-cohort effect directions, and allele frequencies are reported in
+**Supplementary Table 7**.
+
+Fine-mapped posterior inclusion probabilities from this analysis are the input to
+the single-cell chromatin enrichment analysis described in
+[SCAVENGE](#scavenge).
+
+Code available:
+[Manhattan plot and locus heatmap](https://github.com/bicklab/mca-1m/blob/main/KZ-manhattan-and-heatmap.ipynb).
 
 ## Proteomic signatures of aut-mCAs
 A total of 1,465 proteins were tested in 52,705 participants in the UK biobank. Proteomics was measured by Olink (Olink Proteomics; Uppsala, Sweden) using a proximity-extension immunoassay-based method, including proteins from cardiovascular, inflammation, cardiometabolic, neurology, oncology, and other panels. Linear regression models were fitted with aut-mCAs (lymphoid, myeloid, and CLL-associated as described in Supplementary Table 8) as exposures, the level of proteins as outcomes, and various covariates, including age at blood draw (continuous), age squared (continuous), genetic sex (categorical), current smoking status (categorical), and principal components (continuous). Linear regression models were fitted among participants with aut-mCAs with clonal fraction of the aut-mCA as an exposure, the level of proteins as outcomes, and various covariates, including age at blood draw (continuous), age squared (continuous), genetic sex (categorical), current smoking status (categorical), and principal components (continuous). Linear regression models were performed using the R function 'glm'. The Bonferroni threshold of P value was defined by 0.05/1,465 = 3.41 × 10-5.
