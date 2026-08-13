@@ -8,12 +8,13 @@ This repository contains the code and analysis scripts for [Zhao & Pershad et al
 3. [CHIP and aut-mCA co-occurrence](#chip-and-aut-mca-co-occurrence)
 4. [Aut-mCA "cis" chromosome-wide association study](#aut-mca-cis-chromosome-wide-association-study)
 5. [Aut-mCA "trans" genome-wide association study](#aut-mca-trans-genome-wide-association-study)
-6. [Proteomic signatures of aut-mCAs](#proteomic-signatures-of-aut-mcas)
-7. [Aut-mCAs and polygenic risk score associations](#aut-mcas-and-polygenic-risk-score-associations)
-8. [Incident cytosis analysis](#incident-cytosis-analysis)
-9. [Phenome-wide association study of aut-mCAs](#phenome-wide-association-study-of-aut-mcas)
-10. [Mediation analysis](#mediation-analysis)
-11. [Mendelian randomization between aut-mCAs and CLL](#mendelian-randomization-between-aut-mcas-and-cll)
+6. [Locus definition and fine-mapping](#locus-definition-and-fine-mapping)
+7. [Proteomic signatures of aut-mCAs](#proteomic-signatures-of-aut-mcas)
+8. [Aut-mCAs and polygenic risk score associations](#aut-mcas-and-polygenic-risk-score-associations)
+9. [Incident cytosis analysis](#incident-cytosis-analysis)
+10. [Phenome-wide association study of aut-mCAs](#phenome-wide-association-study-of-aut-mcas)
+11. [Mediation analysis](#mediation-analysis)
+12. [Mendelian randomization between aut-mCAs and CLL](#mendelian-randomization-between-aut-mcas-and-cll)
 
 
 ## Autosomal mosaic chromosomal alteration (aut-mCA) detection with MoChA
