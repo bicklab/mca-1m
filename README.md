@@ -413,6 +413,43 @@ the strongest locus scalar-wise from BETA and SE alone.
 Code available:
 [Fine-mapping](https://github.com/bicklab/mca-1m/blob/main/finemap_abf.R) |
 
+## Allelic shift analysis for cis-association validation
+
+A cis association implies that the chromosome carrying the risk allele is
+preferentially amplified or retained in the mCA clone. We tested this directly
+using phased genotypes.
+
+### Method
+
+For each lead cis variant, we restricted to mCA carriers who were **heterozygous**
+at that variant and used phase information to determine, per individual, whether
+the mCA amplified or retained the haplotype carrying the effect allele or the
+alternate allele. We counted carriers in which the effect allele was over- versus
+under-represented and tested departure from the null expectation of 0.5 with a
+**two-sided binomial test**, following Jakubek et al.
+([Nat Genet 2023](https://www.nature.com/articles/s41588-023-01553-1); reference
+implementation at
+[auerlab/TOPMed-mCA-and-LoY-calling](https://github.com/auerlab/TOPMed-mCA-and-LoY-calling)).
+
+This quantity is the **relative phase of the variant with respect to the mCA**,
+and is distinct from the raw variant allele fraction: it asks which haplotype the
+clone carries, not what proportion of reads support the alternate allele. VAF is
+sensitive to read-alignment and genotype-calling biases that shift it away from
+0.5 independently of any true allelic imbalance, whereas the phase-based count is
+not.
+
+Phased data were available in **All of Us v8** and **TOPMed**. Binomial P values are reported per cohort and in meta-analysis, where counts
+are pooled across cohorts and ancestry strata before the test is re-run
+(**Supplementary Table 6**).
+
+### Calibration
+
+Allelic shift significance tracks cis association strength, as expected if the
+test is measuring clonal selection rather than technical artifact. The strongest
+cis locus, *FRA10B*, gives the strongest allelic shift signal
+(P = 7.41 × 10⁻⁵⁴), and all ten retained cis loci show significant allelic shift.
+Calibration was confirmed with a QQ plot of allelic-shift P values.
+
 ## Proteomic signatures of aut-mCAs
 A total of 1,465 proteins were tested in 52,705 participants in the UK biobank. Proteomics was measured by Olink (Olink Proteomics; Uppsala, Sweden) using a proximity-extension immunoassay-based method, including proteins from cardiovascular, inflammation, cardiometabolic, neurology, oncology, and other panels. Linear regression models were fitted with aut-mCAs (lymphoid, myeloid, and CLL-associated as described in Supplementary Table 8) as exposures, the level of proteins as outcomes, and various covariates, including age at blood draw (continuous), age squared (continuous), genetic sex (categorical), current smoking status (categorical), and principal components (continuous). Linear regression models were fitted among participants with aut-mCAs with clonal fraction of the aut-mCA as an exposure, the level of proteins as outcomes, and various covariates, including age at blood draw (continuous), age squared (continuous), genetic sex (categorical), current smoking status (categorical), and principal components (continuous). Linear regression models were performed using the R function 'glm'. The Bonferroni threshold of P value was defined by 0.05/1,465 = 3.41 × 10-5.
 
