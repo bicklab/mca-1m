@@ -72,7 +72,7 @@ Statistical significance was not reached in every cohort, reflecting the smaller
 number of recurrent regions in individual datasets, but the enrichment was
 directionally concordant across all four.
 
-Code available: [Permutation enrichment](https://github.com/bicklab/mca-1m/blob/main/permutation-enrichment.R).
+Code available: [Permutation enrichment](https://github.com/bicklab/mca-1m/blob/main/permutation_enrichment.R).
 
 ### Minimum shared altered regions and candidate drivers
 
