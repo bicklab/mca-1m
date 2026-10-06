@@ -427,7 +427,7 @@ at that variant and used phase information to determine, per individual, whether
 the mCA amplified or retained the haplotype carrying the effect allele or the
 alternate allele. We counted carriers in which the effect allele was over- versus
 under-represented and tested departure from the null expectation of 0.5 with a
-**two-sided binomial test**, following Jakubek et al.
+**two-sided binomial test** pooled across the cohorts, following Jakubek et al.
 ([Nat Genet 2023](https://www.nature.com/articles/s41588-023-01553-1); reference
 implementation at
 [auerlab/TOPMed-mCA-and-LoY-calling](https://github.com/auerlab/TOPMed-mCA-and-LoY-calling)).
@@ -439,7 +439,7 @@ sensitive to read-alignment and genotype-calling biases that shift it away from
 0.5 independently of any true allelic imbalance, whereas the phase-based count is
 not.
 
-Phased data were available in **All of Us v8** and **TOPMed**. Binomial P values are reported per cohort and in meta-analysis, where counts
+Binomial P values are reported per cohort and in meta-analysis, where counts
 are pooled across cohorts and ancestry strata before the test is re-run
 (**Supplementary Table 6**).
 
